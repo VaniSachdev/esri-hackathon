@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Forward - News </title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="apple-touch-icon" href="assets/img/apple-icon.png">
+    <link rel="shortcut icon" type="image/x-icon" href="assets/img/favicon.ico">
+
+    <link rel="stylesheet" href="assets/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/css/templatemo.css">
+    <link rel="stylesheet" href="assets/css/custom.css">
+
+    <!-- Load fonts style after rendering the layout styles -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+    <link rel="stylesheet" href="assets/css/fontawesome.min.css">
+
+    <!-- Load map styles -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin="" />
+<!--
+    
+TemplateMo 559 Favicon Shop
+
+https://templatemo.com/tm-559-Favicon-shop
+
+-->
+</head>
+
+<body>
+
+
+    <!-- Header -->
+    <nav class="navbar navbar-expand-lg navbar-light">
+        <div class="container d-flex justify-content-between align-items-center">
+
+            <a class="navbar-brand text-success logo h1 align-self-center resize" href="index.html">
+                <img style = "width: 15%;" src="./assets/img/icon.png" alt="">
+            </a>
+
+
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#templatemo_main_nav" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="align-self-center collapse navbar-collapse flex-fill  d-lg-flex justify-content-lg-between" id="templatemo_main_nav">
+                <div class="flex-fill">
+                    <ul class="nav navbar-nav d-flex justify-content-between mx-lg-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="map.html">Map</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="resources.html">Resources</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="newsfeed.html">Newsfeed</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="fin_support.html">Funding </a>
+                        </li>
+                    </ul>
+                </div>
+           
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- Start Content Page -->
+    <div class="container-fluid bg-success py-5">
+        <div class="col-md-7 m-auto text-center">
+            <h1 class="h1 text-light"><b>Stay Up To Date</b></h1>
+    
+            <p  class = "text-center">
+                Follow the latest news on abortion status' across the country. Staying current is important as legislature and politics impact the daily lives of so many individuals. 
+                Education is key. 
+            </p>
+        </div>
+    </div>
+
+
+
+
+    <!-- Start Newsfeed -->
+    <div class="container-fluid bg-light py-5">
+        <div class="col-md-9 m-auto text-center">
+            <h1 class="h1">News</h1>
+    
+            <p>
+                <iframe  style= "padding-left: 10%; display:block; text-align:center; width:100%; height: 1000px; overflow: auto;" src="https://api.gdeltproject.org/api/v2/doc/doc?query=abortion%20sourcecountry:US&mode=ArtList&maxrecords=75&timespan=1d"></iframe>
+       
+            </p>
+
+
+            <p> News brought to you from <a href = "https://blog.gdeltproject.org/">The GDELT Project</a> API </p>
+        </div>
+    </div>
+    <!-- End Newsfeed -->
+
+
+
+    <!-- Start Footer -->
+    <div class="w-100 bg-success py-3">
+        <div class="container">
+            <div class="row pt-2">
+                <div class="col-12">
+                    <p class="text-left text-light">
+                        Copyright &copy; 2022 Esri All Rights Reserved 
+                        | Team 9 Intern Hackathon 2022
+                        | Website Template Inpsired By: <a rel="sponsored" href="https://templatemo.com" target="_blank">TemplateMo</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</footer>
+    <!-- End Footer -->
+
+    <!-- Start Script -->
+    <script src="assets/js/jquery-1.11.0.min.js"></script>
+    <script src="assets/js/jquery-migrate-1.2.1.min.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/templatemo.js"></script>
+    <script src="assets/js/custom.js"></script>
+    <!-- End Script -->
+</body>
+
+</html>

@@ -1,0 +1,259 @@
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>ArcGIS API for JavaScript Tutorials: Search for an address</title>
+  <style>
+    html,
+    body,
+    #viewDiv {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+  <link rel="stylesheet" href="https://js.arcgis.com/4.24/esri/themes/light/main.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+  <script src="https://js.arcgis.com/4.24/"></script>
+
+  <script>
+
+    require([
+        "esri/config",
+        "esri/Map",
+        "esri/layers/FeatureLayer",
+        "esri/views/MapView",
+        "esri/Graphic",
+        "esri/geometry/geometryEngine",
+        "esri/layers/GraphicsLayer",
+        "esri/rest/closestFacility",
+        "esri/rest/support/ClosestFacilityParameters",
+        "esri/rest/support/FeatureSet",
+        "esri/widgets/Search",
+        "esri/rest/support/TopFeaturesQuery",
+        "esri/rest/support/TopFilter",
+        'dojo/dom',
+        'dojo/dom-construct',
+        "dojo/on",
+        "esri/rest/locator"],
+      function (
+        esriConfig,
+        Map,
+        FeatureLayer,
+        MapView,
+        Graphic,
+        geometryEngine,
+        GraphicsLayer,
+        closestFacility,
+        ClosestFacilityParameters,
+        FeatureSet,
+        Search_Widget,
+        TopFeaturesQuery,
+        TopFilter,
+        dom, 
+        domConstruct,
+        on,
+        locator
+      ) {
+
+        esriConfig.apiKey = "AAPKd73ab94f038144ea94038dc652710fbdT2fMq4E1veAG5MtdkkuFzv33CnAVNNcp2lxls4P08tMv3W5ZTGiKfcqkMJhzH22K";
+
+        const map = new Map({
+          basemap: "arcgis-navigation"
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          center: [-122.67584, 45.52087],
+          zoom: 12
+        });
+        const facilityPopup = {
+        "title": "Facility Details",
+        "content": "<b>Name:</b> {USER_Names}<br><b>Contact Number:</b> {USER_Contacts}<br><b>Address:</b> {USER_Address}<br> <a href=\"{USER_Website}\">Go to the website</a>"
+      }
+
+        var search_btn = dom.byId("search-btn");
+        var searchAddress = dom.byId('search-address').value;
+        on(search_btn, "click", function (evt) {
+          var searchAddress = dom.byId('search-address').value;
+          var searchRadius = dom.byId("search-radius").value;
+          const params = {
+            address : {
+              "address": searchAddress
+            },
+          };
+          const service_url = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer";
+          locator.addressToLocations(service_url, params).then(function (response) {
+            view.goTo(response[0].location);
+            let searchLocation = response[0].location
+            let query = featureLayer.createQuery();
+              query.geometry = searchLocation;
+              query.distance = searchRadius;
+              query.units = "miles";
+              query.returnGeometry = true;
+              query.spatialRelationship = "intersects";
+              query.outFields = ["*"];
+              featureLayer.queryFeatures(query).then(function (response) {
+                if(response.features.length == 0) {
+                  alert("No facilities found with the filters. Try increasing search radius.")
+                  return
+                }
+                findClosestFacility(
+                  addStartGraphic(searchLocation),
+                  response
+                )
+              });
+
+          }, (error) => {
+            console.log(error.details);
+          })
+        });
+
+        const clusterConfig = {
+          type: "cluster",
+          clusterRadius: "100px",
+          // {cluster_count} is an aggregate field containing
+          // the number of features comprised by the cluster
+          clusterMinSize: "24px",
+          clusterMaxSize: "60px",
+          labelingInfo: [
+            {
+              deconflictionStrategy: "none",
+              labelExpressionInfo: {
+                expression: "Text($feature.cluster_count, '#,###')"
+              },
+              symbol: {
+                type: "text",
+                color: "#ece3e4",
+                font: {
+                  weight: "bold",
+                  family: "Noto Sans",
+                  size: "12px"
+                }
+              },
+              labelPlacement: "center-center"
+            }
+          ]
+        };
+
+        const featureLayer = new FeatureLayer({
+          url: "https://services2.arcgis.com/j80Jz20at6Bi0thr/arcgis/rest/services/Abortion_Facilities/FeatureServer",
+          outFileds : ["*"],
+          popupTemplate: facilityPopup,
+          featureReduction: clusterConfig
+        });
+        map.add(featureLayer);
+
+        const routeSymbol = {
+          type: "simple-line",
+          color: [26, 36, 25, 0.90],
+          width: "5",
+        };
+
+        const routePopUpTemplate = {
+          title: "Time and distance to drive",
+          content: routePopupContent
+        }
+
+        function routePopupContent(route) {
+          const div = document.createElement("div");
+          div.innerHTML = "Travel time (Minutes): " + Math.round(route.graphic.attributes.Total_TravelTime) + "<br/>Distance(Miles): " + route.graphic.attributes.Total_Miles.toFixed(2);
+          return div; 
+        }
+
+        let featuresetFacilities = null;
+
+        const routesLayer = new GraphicsLayer();
+        map.add(routesLayer);
+
+
+        function addStartGraphic(point) {
+          view.graphics.removeAll();
+          const graphic = new Graphic({
+            symbol: {
+              type: "simple-marker",
+              color: [96, 118, 1, 1.0],
+              size: 8,
+              outline: {
+                color: [50, 50, 50],
+                width: 1,
+              },
+            },
+            geometry: point,
+          });
+          view.graphics.add(graphic);
+          return graphic;
+        }
+
+        function findClosestFacility(startFeature, facilityFeatures) {
+
+          const params = new ClosestFacilityParameters({
+            incidents: new FeatureSet({
+              features: [startFeature],
+            }),
+            facilities: facilityFeatures,
+            returnRoutes: true,
+            returnFacilities: true,
+            defaultTargetFacilityCount: 3,
+            returnDirections: true,
+          });
+
+          const url = "https://route-api.arcgis.com/arcgis/rest/services/World/ClosestFacility/NAServer/ClosestFacility_World";
+
+          closestFacility.solve(url, params).then(
+            (results) => {
+              showRoutes(results.routes);
+            },
+            (error) => {
+              console.log(error.details);
+            }
+          );
+        }
+
+        function showRoutes(routes) {
+          // Show the routes to the closest facilities
+          routesLayer.removeAll();
+          routes.forEach((route, i) => {
+            route.symbol = routeSymbol;
+            route.popupTemplate = routePopUpTemplate 
+            routesLayer.add(route);
+          });
+        }
+      });
+  </script>
+
+</head>
+
+<body>
+  
+  <div class="container-fluid">
+    <div class="h-100 row">
+      <div class="col-2">
+        <div class="card" style="width: 18rem;" id="filters">
+            <div class="form-group">
+              <label for="earch-address">Search Address</label>
+              <input type="address" class="form-control" id="search-address" placeholder="Search for address">
+            </div>
+            <div class = "form-group">
+              <label for="search-radius">Search radius in Miles</label>
+              <select class="form-control" id="search-radius">
+                <option value="10">10 Miles</option>
+                <option value="50">50 Miles</option>
+                <option value="80">80 Miles</option>
+                <option value="100">100 Miles</option>
+                <option value="500">500 Miles</option>
+              </select>
+            </div>
+            <button class="btn btn-primary" id="search-btn">Search</button>
+        </div>
+      </div>
+      <div class="col-1"></div>
+      <div class="col-9">
+        <div id="viewDiv"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>
